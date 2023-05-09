@@ -1,3 +1,4 @@
 from .company_serializer import CompanySerializer
 from .role_serializer import RoleSerializer
 from .sidebar_item_serializer import SidebarItemSerializer
+from .sidebar_serializer import SidebarSerializer
