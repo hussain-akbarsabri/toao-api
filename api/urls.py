@@ -1,5 +1,5 @@
 from django.urls import path
-from api.views import CompanyList, CompanyDetail, RoleList, RoleDetail, SidebarItemList, SidebarItemDetail, SidebarList, SidebarDetail, RegisterView, ChangePasswordView, UpdateProfileView
+from api.views import CompanyList, CompanyDetail, RoleList, RoleDetail, SidebarItemList, SidebarItemDetail, SidebarList, SidebarDetail, RegisterView, ChangePasswordView, UpdateProfileView, CustomTokenObtainPairView, LogoutView
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView, TokenBlacklistView
 
 urlpatterns = [
@@ -13,9 +13,9 @@ urlpatterns = [
     path('companies/<int:company>/roles/<int:role>/sidebars/<int:pk>/', SidebarDetail.as_view(), name='sidebar_detail'),
     path('sidebars/<int:pk>/', SidebarDetail.as_view(), name='sidebar_detail'),
     path('register/', RegisterView.as_view(), name='auth_register'),
-    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('change_password/<int:pk>/', ChangePasswordView.as_view(), name='auth_change_password'),
     path('update_profile/<int:pk>/', UpdateProfileView.as_view(), name='auth_update_profile'),
-    path('logout/', TokenBlacklistView.as_view(), name='token_blacklist'),
+    path('logout/', LogoutView.as_view(), name='token_blacklist'),
 ]

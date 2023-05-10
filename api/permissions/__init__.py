@@ -1,1 +1,1 @@
-from .token_permission import DenyBlacklistedToken
+from .token_permission import IgnoreBlacklistPermission

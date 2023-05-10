@@ -7,10 +7,13 @@ class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True, validators=[UniqueValidator(queryset=User.objects.all())])
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     confirmation_password = serializers.CharField(write_only=True, required=True)
+    device_id = serializers.CharField()
+    device_type = serializers.CharField()
+    time_zone = serializers.CharField()
 
     class Meta:
         model = User
-        fields = ('username', 'password', 'confirmation_password', 'email', 'first_name', 'last_name')
+        fields = ('username', 'password', 'confirmation_password', 'email', 'first_name', 'last_name', 'device_id', 'device_type', 'time_zone')
         extra_kwargs = {
             'first_name': {'required': True},
             'last_name': {'required': True}
@@ -26,7 +29,10 @@ class RegisterSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             email=validated_data['email'],
             first_name=validated_data['first_name'],
-            last_name=validated_data['last_name']
+            last_name=validated_data['last_name'],
+            device_id=validated_data['device_id'],
+            device_type=validated_data['device_type'],
+            time_zone=validated_data['time_zone'],
         )
         user.set_password(validated_data['password'])
         user.save()
