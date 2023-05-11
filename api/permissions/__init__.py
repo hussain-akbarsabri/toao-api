@@ -1,1 +1,1 @@
-from .token_permission import IgnoreBlacklistPermission
+from .access_token_permission import IsValidAccessToken

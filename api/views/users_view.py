@@ -1,17 +1,17 @@
 from api.serializers import RegisterSerializer, ChangePasswordSerializer, UpdateUserSerializer
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework import generics
-from api.models import User
-from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.response import Response
-from rest_framework import status
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework import serializers
-from api.permissions import IgnoreBlacklistPermission
 from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.tokens import RefreshToken
+from api.permissions import IsValidAccessToken
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import serializers
+from rest_framework import generics
+from rest_framework import status
 from datetime import datetime
+from api.models import User
 import uuid
 
 class RegisterView(generics.CreateAPIView):
@@ -39,15 +39,13 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         return user
 
 class ChangePasswordView(generics.UpdateAPIView):
-
     queryset = User.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = ChangePasswordSerializer
 
-
 class UpdateProfileView(generics.UpdateAPIView):
     queryset = User.objects.all()
-    permission_classes = (IsAuthenticated, IgnoreBlacklistPermission)
+    permission_classes = (IsAuthenticated, IsValidAccessToken)
     serializer_class = UpdateUserSerializer
 
 class LogoutView(APIView):
@@ -62,23 +60,12 @@ class LogoutView(APIView):
             user = User.objects.get(username=request.user.username)
             expires_at = datetime.now()
             outstanding_token = OutstandingToken.objects.create(token=access_token, user=user, jti=jti, expires_at=expires_at)
-            blacklisted_token = BlacklistedToken.objects.create(token=outstanding_token)
+            BlacklistedToken.objects.create(token=outstanding_token)
             token.blacklist()
-            user.device_id = "None"
-            user.device_type = "None"
-            user.time_zone = "None"
+            user.device_id = ""
+            user.device_type = ""
+            user.time_zone = ""
             user.save()
             return Response({'message': "Logout Successfully"}, status=status.HTTP_205_RESET_CONTENT)
         except TokenError as e:
             return Response({'message': 'Refresh Token is invalid or expired'}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class LogoutAllView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        tokens = OutstandingToken.objects.filter(user_id=request.user.id)
-        for token in tokens:
-            t, _ = BlacklistedToken.objects.get_or_create(token=token)
-
-        return Response(status=status.HTTP_205_RESET_CONTENT)
